@@ -1,18 +1,18 @@
 package com.example.hw1;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
-    static final String NUMS_IN_LIST = "numsInList";
+public class MainActivity extends AppCompatActivity implements RecyclerFragment.IncNumListener,
+                                                               ItemClickListener {
     private Integer numsInList = 100;
+    private RecyclerFragment recyclerFragment;
+    private ShowerFragment showerFragment;
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putInt(NUMS_IN_LIST, numsInList);
+        savedInstanceState.putInt("NUMS_IN_LIST", numsInList);
     }
 
     @Override
@@ -20,11 +20,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
-            numsInList = savedInstanceState.getInt(NUMS_IN_LIST);
+            numsInList = savedInstanceState.getInt("NUMS_IN_LIST");
         }
 
         setContentView(R.layout.activity_main);
-        showList();
+
+        showerFragment = (ShowerFragment) getSupportFragmentManager().findFragmentByTag(ShowerFragment.TAG);
+        recyclerFragment = (RecyclerFragment) getSupportFragmentManager().findFragmentByTag(RecyclerFragment.TAG);
+
+        if (showerFragment == null) {
+            showerFragment = new ShowerFragment();
+        }
+
+        if (recyclerFragment == null) {
+            recyclerFragment = new RecyclerFragment();
+        }
+
+        if(getSupportFragmentManager().findFragmentByTag(showerFragment.TAG) == null) {
+            showList();
+        }
     }
 
     public void incNumsInList() {
@@ -32,22 +46,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showList() {
-        RecyclerFragment fragment = new RecyclerFragment();
-        fragment.setNumsInList(numsInList);
-        this.showFragment(fragment);
+        Bundle bundle = new Bundle();
+        bundle.putInt("NUM_IN_LIST", numsInList);
+        recyclerFragment.setArguments(bundle);
+
+        getSupportFragmentManager().beginTransaction().
+                replace(R.id.frag_slot, recyclerFragment, RecyclerFragment.TAG).
+                commit();
     }
 
-    public void showNumber(final RecyclerFragment.NumberViewHolder vh) {
-        ShowerFragment fragment = new ShowerFragment();
-        fragment.setContent(vh);
-        this.showFragment(fragment);
-    }
+    public void showNumber(final String value, final Integer color) {
+        Bundle bundle = new Bundle();
+        bundle.putString("NUM_TO_SHOW", value);
+        bundle.putInt("CLR_TO_SHOW", color);
+        showerFragment.setArguments(bundle);
 
-    private void showFragment(Fragment fragment){
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.frag_slot, fragment);
-        transaction.addToBackStack(null);
-        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        transaction.commit();
+        getSupportFragmentManager().beginTransaction().
+                replace(R.id.frag_slot, showerFragment, ShowerFragment.TAG).
+                addToBackStack(null).
+                commit();
     }
 }

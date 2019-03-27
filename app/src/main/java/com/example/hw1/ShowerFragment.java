@@ -11,20 +11,31 @@ import android.widget.TextView;
 
 
 public class ShowerFragment extends Fragment {
-    private RecyclerFragment.NumberViewHolder mVh;
+    public static final String TAG = "ShowerFragment";
+
+    private String mValue;
+    private Integer mColor;
 
     public ShowerFragment() {
         // Required empty public constructor
     }
 
-    public void setContent(RecyclerFragment.NumberViewHolder vh) {
-        mVh = vh;
+    public void setContent(String value, Integer color) {
+        mValue = value;
+        mColor = color;
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Bundle bundle = getArguments();
+
+        if (bundle != null) {
+            mValue = bundle.getString("NUM_TO_SHOW");
+            mColor = bundle.getInt("CLR_TO_SHOW");
+        }
+
         return inflater.inflate(R.layout.fragment_shower, container, false);
     }
 
@@ -34,14 +45,14 @@ public class ShowerFragment extends Fragment {
 
         TextView tv = (TextView) getView().findViewById(R.id.showing_num);
 
-        tv.setText(mVh.getNumberString());
-        tv.setTextColor(mVh.getColor());
+        tv.setText(mValue);
+        tv.setTextColor(mColor);
 
         Button backButton = (Button) getView().findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) getActivity()).showList();
+                getActivity().onBackPressed();
             }
         });
     }

@@ -1,11 +1,10 @@
 package com.example.hw1;
 
-import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +13,11 @@ import java.util.List;
 class NumListAdapter extends RecyclerView.Adapter<RecyclerFragment.NumberViewHolder> {
 
     private List<Integer> mData = new ArrayList<Integer>();
-    private Context mContext;
+    private ItemClickListener mListener;
 
-    public NumListAdapter(Integer listSize) {
+    public NumListAdapter(Integer listSize, ItemClickListener listener) {
+        mListener = listener;
+
         for (Integer i = 1; i <= listSize; i++) {
             mData.add(i);
         }
@@ -27,30 +28,18 @@ class NumListAdapter extends RecyclerView.Adapter<RecyclerFragment.NumberViewHol
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
         View v = inflater.inflate(R.layout.grid_entry, viewGroup, false);
 
-        this.mContext = viewGroup.getContext();
-
-        return new RecyclerFragment.NumberViewHolder(v);
+        return new RecyclerFragment.NumberViewHolder(v, mListener);
     }
 
     @Override
     public void onBindViewHolder(final RecyclerFragment.NumberViewHolder vh, int i) {
-        vh.setContent(mContext, mData.get(i));
-
-        vh.mTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((MainActivity) mContext).showNumber(vh);
-            }
-        });
+        vh.mTextView.setTextColor((i%2 == 0) ? (Color.RED) : (Color.BLUE));
+        vh.mTextView.setText(Integer.toString(mData.get(i)));
     }
 
     public void addNextNum() {
-        Integer newNum = this.getItemCount() + 1;
-        mData.add(newNum);
-        notifyItemInserted(newNum - 1);
-
-        Toast.makeText(mContext,"Number " + this.getItemCount() + " added",
-                      Toast.LENGTH_SHORT).show();
+        mData.add(getItemCount());
+        notifyItemInserted(getItemCount());
     }
 
     @Override

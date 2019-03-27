@@ -3,27 +3,38 @@ package com.example.hw1;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 
 public class RecyclerFragment extends Fragment {
-    private Integer numsInList = 100;
+    public static final String TAG = "RecyclerFragment";
+
+    public interface IncNumListener{
+        void incNumsInList();
+    }
+
+    private Integer numsInList;
+    private ItemClickListener showListener;
+    private IncNumListener incListener;
 
     public RecyclerFragment() {
         // Required empty public constructor
     }
 
-    public void setNumsInList(Integer num) {
-        if (num > 0) {
-            numsInList = num;
-        }
+    @Override
+    public void onAttach(Context activity) {
+        super.onAttach(activity);
+
+        showListener = (ItemClickListener) activity;
+        incListener = (IncNumListener) activity;
     }
 
     @Override
@@ -33,51 +44,54 @@ public class RecyclerFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("NUM_IN_LIST", numsInList);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onStart();
+
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            numsInList = bundle.getInt("NUM_IN_LIST");
+        }
+
         RecyclerView mRecyclerView = getView().findViewById(R.id.recycler_view);
 
         Integer orientation = getResources().getConfiguration().orientation;
         Integer spanNum = (orientation == Configuration.ORIENTATION_LANDSCAPE) ? 4 : 3;
 
-        final GridLayoutManager mLayoutManager = new GridLayoutManager(getView().getContext(), spanNum);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(getView().getContext(), spanNum));
 
-        final NumListAdapter mAdapter = new NumListAdapter(numsInList);
+        final NumListAdapter mAdapter = new NumListAdapter(numsInList, showListener);
         mRecyclerView.setAdapter(mAdapter);
 
-        Button addButton = (Button) getView().findViewById(R.id.add_button);
-        addButton.setOnClickListener(new View.OnClickListener() {
+        getView().findViewById(R.id.add_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) getActivity()).incNumsInList();
+                incListener.incNumsInList();
                 mAdapter.addNextNum();
             }
         });
     }
 
-    static class NumberViewHolder extends RecyclerView.ViewHolder {
+    static class NumberViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView mTextView;
+        private ItemClickListener mListener;
 
-        public NumberViewHolder(View itemView) {
+        public NumberViewHolder(View itemView, ItemClickListener listener) {
             super(itemView);
+            mListener = listener;
+            itemView.setOnClickListener(this);
+
             mTextView = itemView.findViewById(R.id.grid_entry_text);
         }
 
-        public void setContent(Context ctx, Integer number){
-            this.mTextView.setText(number.toString());
-
-            Integer color = ctx.getResources().getColor((number%2 == 0) ? (R.color.red) : (R.color.blue));
-            this.mTextView.setTextColor(color);
+        @Override
+        public void onClick(View v) {
+            mListener.showNumber((String) mTextView.getText(), mTextView.getCurrentTextColor());
         }
-
-        public String getNumberString(){
-            return (String) this.mTextView.getText();
-        }
-
-        public Integer getColor(){
-            return this.mTextView.getCurrentTextColor();
-        }
-
     }
 }
