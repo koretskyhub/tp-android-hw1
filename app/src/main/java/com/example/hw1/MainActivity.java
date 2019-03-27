@@ -36,7 +36,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
             recyclerFragment = new RecyclerFragment();
         }
 
-        if(getSupportFragmentManager().findFragmentByTag(showerFragment.TAG) == null) {
+        if ((getSupportFragmentManager().findFragmentByTag(showerFragment.TAG) == null) ||
+                (getSupportFragmentManager().findFragmentByTag(recyclerFragment.TAG) != null)){
             showList();
         }
     }

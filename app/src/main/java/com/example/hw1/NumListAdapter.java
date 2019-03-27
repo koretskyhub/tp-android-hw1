@@ -38,7 +38,7 @@ class NumListAdapter extends RecyclerView.Adapter<RecyclerFragment.NumberViewHol
     }
 
     public void addNextNum() {
-        mData.add(getItemCount());
+        mData.add(getItemCount() + 1);
         notifyItemInserted(getItemCount());
     }
 
