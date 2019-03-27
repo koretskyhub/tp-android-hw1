@@ -44,14 +44,8 @@ public class RecyclerFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt("NUM_IN_LIST", numsInList);
-    }
-
-    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onStart();
+        super.onViewCreated(view, savedInstanceState);
 
         Bundle bundle = getArguments();
         if (bundle != null) {

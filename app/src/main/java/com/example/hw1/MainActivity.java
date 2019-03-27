@@ -36,20 +36,24 @@ public class MainActivity extends AppCompatActivity implements RecyclerFragment.
             recyclerFragment = new RecyclerFragment();
         }
 
-        if ((getSupportFragmentManager().findFragmentByTag(showerFragment.TAG) == null) ||
-                (getSupportFragmentManager().findFragmentByTag(recyclerFragment.TAG) != null)){
+        if (getSupportFragmentManager().findFragmentByTag(showerFragment.TAG) == null){
             showList();
         }
     }
 
     public void incNumsInList() {
         numsInList++;
+        setListSize();
     }
 
-    public void showList() {
+    private void setListSize(){
         Bundle bundle = new Bundle();
         bundle.putInt("NUM_IN_LIST", numsInList);
         recyclerFragment.setArguments(bundle);
+    }
+
+    public void showList() {
+        setListSize();
 
         getSupportFragmentManager().beginTransaction().
                 replace(R.id.frag_slot, recyclerFragment, RecyclerFragment.TAG).
